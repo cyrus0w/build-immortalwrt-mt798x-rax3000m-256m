@@ -39,7 +39,7 @@ env:
   REPO_BRANCH: openwrt-21.02
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: rax3000m_250602.config
-  RELEASE_NOTICE: "istore界面，237高功率，ksmbd共享，qb和transmission下载，openclsh(预置内核）zerotier,不含docker。"
+  RELEASE_NOTICE: "istore界面，237高功率，ksmbd共享，qb下载，openclsh(预置内核），zerotier, docker。"
   DIY_P1_SH: diy-part1.sh
   DIY_P2_SH: diy-part2.sh
   TZ: Asia/Shanghai
@@ -86,7 +86,7 @@ jobs:
       run: |
         sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
         sudo -E apt-get -qq update
-        sudo -E apt-get -qq install $(curl -fsSL git.io/depends-ubuntu-2004)
+        sudo -E apt-get -qq install $(curl -fsSL git.io/depends-ubuntu-2204)
         sudo -E apt-get -qq autoremove --purge
         sudo -E apt-get -qq clean
         sudo timedatectl set-timezone "$TZ"
@@ -163,4 +163,4 @@ jobs:
         body: |
           # 未测试×
           
-          IP: 192.168.5.1 | Password: none ${{ env.RELEASE_NOTICE }}
+          IP: 192.168.5.1 | Password: none  ${{ env.RELEASE_NOTICE }}
