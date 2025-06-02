@@ -23,3 +23,4 @@ echo "src-git kenzo https://github.com/kenzok8/openwrt-packages" >> ./feeds.conf
 #git clone https://github.com/xiaoqingfengATGH/luci-theme-infinityfreedom package/luci-theme-infinityfreedom
 #git clone https://github.com/sirpdboy/netspeedtest.git package/netspeedtest
 #git clone https://github.com/sirpdboy/luci-app-poweroffdevice.git package/luci-app-poweroffdevice
+
