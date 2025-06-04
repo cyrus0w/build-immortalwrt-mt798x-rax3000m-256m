@@ -39,7 +39,8 @@ env:
   REPO_BRANCH: openwrt-21.02
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: rax3000m_250604_qb.config
-  RELEASE_NOTICE: "237高功率，ksmbd共享，openclsh(预置内核），zerotier，AdGuard Home, MosDNS, wechatpush, socat。"
+  RELEASE_NOTICE: "237高功率，ksmbd共享，openclsh(预置内核），zerotier，AdGuard Home, MosDNS, wechatpush, socat，上网时间控制，aria2，zerotier。"
+#  RELEASE_NOTICE: "237高功率，ksmbd共享，openclsh(预置内核），zerotier，AdGuard Home, MosDNS, wechatpush, socat，定时重启，上网时间控制，aria2，zerotier，alist。"
   DIY_P1_SH: diy-part1.sh
   DIY_P2_SH: diy-part2.sh
   TZ: Asia/Shanghai
