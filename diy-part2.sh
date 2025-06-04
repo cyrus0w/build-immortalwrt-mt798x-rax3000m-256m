@@ -26,6 +26,6 @@ sed -i 's/ImmortalWrt-5G/RAX3000M-5G/g' package/mtk/applications/mtwifi-cfg/file
 
 #删除冲突的软件包
 #rm -rf ./package/istore
-rm -rf ./feeds/kenzo/luci-app-quickstart
-rm -rf ./feeds/kenzo/luci-app-store
-rm -rf ./feeds/kenzo/luci-lib-taskd
+#rm -rf ./feeds/kenzo/luci-app-quickstart
+#rm -rf ./feeds/kenzo/luci-app-store
+#rm -rf ./feeds/kenzo/luci-lib-taskd
