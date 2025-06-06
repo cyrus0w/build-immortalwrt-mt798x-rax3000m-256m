@@ -14,7 +14,7 @@
 #sed -i 's/^#\(.*helloworld\)/\1/' feeds.conf.default
 
 # Add a feed source
-echo "src-git kenzo https://github.com/kenzok8/openwrt-packages" >> ./feeds.conf.default
+#echo "src-git kenzo https://github.com/kenzok8/openwrt-packages" >> ./feeds.conf.default
 echo "src-git qbittorrent https://github.com/KryptonLee/qBittorrent-openwrt-package.git;v4.4.5-openwrt-21.02" >> ./feeds.conf.default
 #echo "src-git qbittorrent https://github.com/sbwml/luci-app-qbittorrent.git;4.4.5" >> ./feeds.conf.default
 #echo "src-git small https://github.com/kenzok8/small" >> ./feeds.conf.default
