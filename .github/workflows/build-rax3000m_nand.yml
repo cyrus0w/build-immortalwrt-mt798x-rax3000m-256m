@@ -39,7 +39,8 @@ env:
   REPO_BRANCH: openwrt-21.02
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: rax3000m_250606_qb.config
-  RELEASE_NOTICE: "237高功率，ksmbd共享，openclsh(预置内核），zerotier，socat，wechatpush，qB下载（先删除），硬盘休眠luci-app-hd-idle，定时重启autoreboot，上网时间控制accesscontrol，alist（先删除）。"
+  RELEASE_NOTICE: "237高功率，ksmbd共享，openclsh(预置内核），zerotier，socat，wechatpush，硬盘休眠luci-app-hd-idle，定时重启autoreboot，上网时间控制accesscontrol，MosDNS，zsh。"
+#  RELEASE_NOTICE: "237高功率，ksmbd共享，openclsh(预置内核），zerotier，socat，wechatpush，qBE下载，硬盘休眠luci-app-hd-idle，定时重启autoreboot，上网时间控制accesscontrol，alist（先删除）。"
 #  RELEASE_NOTICE: "237高功率，ksmbd共享，openclsh(预置内核），zerotier，AdGuard Home, MosDNS, wechatpush, socat，上网时间控制，aria2。"
 #  RELEASE_NOTICE: "237高功率，ksmbd共享，openclsh(预置内核），zerotier，AdGuard Home, MosDNS, wechatpush, socat，定时重启，上网时间控制，aria2，alist。"
   DIY_P1_SH: diy-part1.sh
