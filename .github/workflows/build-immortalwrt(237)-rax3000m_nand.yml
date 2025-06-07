@@ -192,7 +192,7 @@ jobs:
     - name: Check space usage
       if: (!cancelled())
       run: df -hT
-    
+      
     - name: 整理输出文件
       id: organize
       if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
