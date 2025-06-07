@@ -90,9 +90,9 @@ rm -rf package/new/sbwml-mosdns
 ## Add luci-app-wolplus
 # git clone https://github.com/animegasan/luci-app-wolplus package/new/luci-app-wolplus
 
-## Add luci-app-wechatpush
+## Add luci-app-wechatpush/v3.3.3
 rm -rf feeds/luci/applications/luci-app-wechatpush/
-git clone https://github.com/tty228/luci-app-wechatpush.git package/new/luci-app-wechatpush
+git clone -b v3.3.3 https://github.com/tty228/luci-app-wechatpush.git package/new/luci-app-wechatpush
 
 ## Add luci-app-pushbot
 git clone https://github.com/zzsj0928/luci-app-pushbot package/new/luci-app-pushbot
