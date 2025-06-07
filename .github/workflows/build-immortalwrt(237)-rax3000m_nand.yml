@@ -1,0 +1,272 @@
+#
+# Copyright (c) 2019-2020 P3TERX <https://p3terx.com>
+#
+# This is free software, licensed under the MIT License.
+# See /LICENSE for more information.
+#
+# https://github.com/P3TERX/Actions-OpenWrt
+# Description: Build OpenWrt using GitHub Actions
+#
+
+name: Build rax3000m
+
+#on:
+#  repository_dispatch:
+#  workflow_dispatch:
+#    inputs:
+#      ssh:
+#        description: 'SSH connection to Actions'
+#        required: false
+#        default: 'false'
+
+on: 
+  release:
+    types: [published]
+  push:
+    tags:
+    - 'v*'
+  #  branches: 
+  #    - master
+#  schedule:
+#    - cron: 0 8 * * 5
+  watch:
+    types: [started]
+
+ 
+
+env:
+  Firmware_Author: padavanonly
+  REPO_URL: https://github.com/padavanonly/immortalwrt-mt798x
+#  REPO_URL: https://github.com/zikura88/immortalwrt-mt798x
+  REPO_BRANCH: openwrt-21.02
+  #FEEDS_CONF: immortalwrt/feeds.conf.default
+  CONFIG_FILE: immortalwrt/rax3000m_250607.config
+  RELEASE_NOTICE: "ksmbd共享，openclsh(预置内核），zerotier，新socat，新wechatpush，luci-app-pushbot，硬盘休眠luci-app-hd-idle，定时重启autoreboot，上网时间控制accesscontrol，新MosDNS，zsh，新AdGuard Home，"
+#  RELEASE_NOTICE: "237高功率，ksmbd共享，openclsh(预置内核），zerotier，socat，wechatpush，qB下载，硬盘休眠luci-app-hd-idle，定时重启autoreboot，上网时间控制accesscontrol，alist（先删除）。"
+#  RELEASE_NOTICE: "237高功率，ksmbd共享，openclsh(预置内核），zerotier，AdGuard Home, MosDNS, wechatpush, socat，上网时间控制，aria2。"
+#  RELEASE_NOTICE: "237高功率，ksmbd共享，openclsh(预置内核），zerotier，AdGuard Home, MosDNS, wechatpush, socat，定时重启，上网时间控制，aria2，alist。"
+  DEVICE: rax3000m
+  DIY_P1_SH: immortalwrt/diy-part1.sh
+  DIY_P2_SH: immortalwrt/diy-part2.sh
+  TZ: Asia/Shanghai
+  PPPOE_USERNAME: ${{ secrets.PPPOE_USERNAME }}
+  PPPOE_PASSWD: ${{ secrets.PPPOE_PASSWD }}
+  WIFI_PASSWD: ${{ secrets.WIFI_PASSWD }}
+  ROOT_PASSWD: ${{ secrets.ROOT_PASSWD }}
+  UPLOAD_FIRMWARE: true
+  UPLOAD_RELEASE: true
+  TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+  TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        
+jobs:
+  _rax3000m:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+
+
+    steps:
+    - name: 检查服务器配置
+      if: (!cancelled())
+      run: |
+        echo "警告⚠"
+        echo "若分配的服务器性能不足，务必及时取消，重新运行！"
+        echo "已知编译成功CPU型号：8370C,8171M"
+        echo "已知性能不足CPU型号：8272CL,E5系列"
+        echo "--------------------------CPU信息--------------------------"
+        echo "CPU物理数量:$(cat /proc/cpuinfo| grep "physical id"| sort| uniq| wc -l)"
+        echo -e "CPU核心及版本信息：$(cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c) \n"
+        echo "--------------------------内存信息--------------------------"
+        echo "已安装内存详细信息："
+        sudo lshw -short -C memory | grep GiB
+        echo -e "\n"
+        echo "--------------------------硬盘信息--------------------------"
+        echo -e  "硬盘数量：$(ls /dev/sd* | grep -v [1-9] | wc -l) \n"
+        echo "硬盘详情："
+        df -Th
+    
+    - name: Free Disk Space (Ubuntu)
+      uses: jlumbroso/free-disk-space@main
+      with:
+        # this might remove tools that are actually needed,
+        # if set to "true" but frees about 6 GB
+        tool-cache: true
+        
+        # all of these default to true, but feel free to set to
+        # "false" if necessary for your workflow
+        android: true
+        dotnet: true
+        haskell: true
+        large-packages: true
+        docker-images: true
+        swap-storage: true
+        
+    - name: Checkout
+      uses: actions/checkout@main
+    
+#    - name: Telegram notification
+#      run: |
+#        curl -k --data chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" --data "text=🎉 主人：您正在使用 github Action 编译 ${{ env.DEVICE }}_${{ env.Firmware_Author }}_immortalwrt 固件,请耐心等待...... 😋" "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage"
+        
+    - name: Initialization environment
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
+        sudo -E apt-get -qq update
+        sudo -E apt-get -qq install $(curl -fsSL git.io/depends-ubuntu-2204)
+        sudo -E apt-get -qq autoremove --purge
+        sudo -E apt-get -qq clean
+        sudo timedatectl set-timezone "$TZ"
+        sudo mkdir -p /mnt/workdir
+        sudo chown $USER:$GROUPS /mnt/workdir
+
+    - name: Clone source code
+      working-directory: /mnt/workdir
+      run: |
+        df -hT $PWD
+        git clone $REPO_URL -b $REPO_BRANCH openwrt
+        ln -sf /mnt/workdir/openwrt $GITHUB_WORKSPACE/openwrt
+
+    - name: Load custom feeds
+      run: |
+        [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
+        chmod +x $DIY_P1_SH
+        cd openwrt
+        $GITHUB_WORKSPACE/$DIY_P1_SH
+
+    - name: Update feeds
+      run: cd openwrt && ./scripts/feeds update -a
+
+    - name: Install feeds
+      run: cd openwrt && ./scripts/feeds install -a
+
+    - name: Load custom configuration
+      run: |
+        [ -e files ] && mv files openwrt/files
+        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
+        chmod +x $DIY_P2_SH
+        cd openwrt
+        $GITHUB_WORKSPACE/$DIY_P2_SH
+      
+    - name: SSH connection to Actions
+      uses: P3TERX/ssh2actions@v1.0.0
+      if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
+      env:
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+
+    - name: Download package
+      id: package
+      run: |
+        cd openwrt
+        make defconfig
+        make download -j8
+        find dl -size -1024c -exec ls -l {} \;
+        find dl -size -1024c -exec rm -f {} \;
+
+    - name: Compile the firmware
+      id: compile
+      run: |
+        cd openwrt
+        echo -e "$(nproc) thread compile"
+        make -j$(nproc) || make -j1 || make -j1 V=s
+        
+        sed -n 's/.*lan) ipad=${ipaddr:-"\([0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\)"} ;;.*/\1/p' package/base-files/files/bin/config_generate | head -n 1 > LAN_IP
+        [ -s LAN_IP ] && echo "LAN_IP=$(cat LAN_IP)" >> $GITHUB_ENV
+        if grep -q 'CONFIG_PACKAGE_mtwifi-cfg=y' .config; then
+                echo "WIFI_INTERFACE=-mtwifi" >> $GITHUB_ENV
+        else
+                echo "WIFI_INTERFACE=" >> $GITHUB_ENV
+        fi
+        if grep -q 'CONFIG_PACKAGE_luci-app-dockerman=y' .config; then
+                echo "BUILD_DOCKERMAN=docker" >> $GITHUB_ENV
+        else
+                echo "BUILD_DOCKERMAN=" >> $GITHUB_ENV
+        fi
+        grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
+        [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
+        echo "FILE_DATE=$(date +"%Y.%m.%d-%H%M")" >> $GITHUB_ENV
+        echo "status=success" >> $GITHUB_OUTPUT
+    
+    - name: Check space usage
+      if: (!cancelled())
+      run: df -hT
+    
+    - name: 整理输出文件
+      id: organize
+      if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
+      run: | 
+#        mapfile -t devices < <(grep '^CONFIG_TARGET_DEVICE.*=y' openwrt/.config | sed -r 's/.*DEVICE_(.*)=y/\1/')
+        cd openwrt/bin/targets/*/*
+        rm -rf packages
+#        sudo -E apt-get -qq install rename
+#        for val in "${devices[@]}"; do
+#          rename "s/.*${val}/${{ env.FILE_DATE }}-${{ env.Firmware_Author }}-${{ env.DEVICE_NAME }}-${val}${{ env.WIFI_VERSION }}${{ env.EEPROM }}-${{ env.BUILD_DOCKERMAN }}/" *
+#          echo "$val"
+#        done
+        echo "FIRMWARE=$PWD" >> $GITHUB_ENV
+        echo "status=success" >> $GITHUB_OUTPUT
+        
+    - name : 打包上传固件到Actions Artifacts
+      uses: actions/upload-artifact@main
+      if: steps.organize.outputs.status == 'success' && !cancelled()
+      with:
+        name: ${{ env.FILE_DATE }}-${{ env.Firmware_Author }}-${{ env.DEVICE_NAME }}-${{ env.BUILD_DOCKERMAN }}
+        path: openwrt/bin
+
+    - name: 生成固件Release标签
+      id: tag
+      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+      run: |
+        touch release.txt
+        echo "- 使用源码：${{ env.REPO_URL }}" >> release.txt
+        echo "- 使用分支：${{ env.REPO_BRANCH }}" >> release.txt
+        echo "- 登录信息：${{ env.LAN_IP }} | root/none" >> release.txt
+        if [[ "$Firmware_Author" == 'padavanonly' ]]; then
+          echo "- 使用237大佬的高功率版本" >> release.txt
+        fi
+        if [[ "${{ env.WIFI_INTERFACE }}" == '-mtwifi' ]]; then
+          echo "- 使用hanwckf mtwifi-cfg原生luci无线配置工具" >> release.txt
+        else
+          echo "- 使用mtk-sdk luci-app-mtk无线配置工具" >> release.txt
+        fi
+        if [[ "${{ env.BUILD_DOCKERMAN }}" == 'docker' ]]; then
+          echo "- 已编译luci-app-dockerman" >> release.txt
+        else
+          echo "- 未编译luci-app-dockerman" >> release.txt
+        fi
+        echo "- 集成组件${{ env.RELEASE_NOTICE }}"
+        echo "release_tag=${{ env.FILE_DATE }}-${{ env.Firmware_Author }}-${{ env.DEVICE_NAME }}-${{ env.BUILD_DOCKERMAN }}" >> $GITHUB_OUTPUT
+        echo "status=success" >> $GITHUB_OUTPUT
+        
+    - name: 发布固件至Release
+      uses: softprops/action-gh-release@v2.1.0
+      if: steps.tag.outputs.status == 'success' && !cancelled()
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        files: ${{ env.FIRMWARE }}/*
+        name: ${{ env.FILE_DATE }}-${{ env.Firmware_Author }}-${{ env.DEVICE_NAME }}-${{ env.BUILD_DOCKERMAN }}
+        tag_name: ${{ steps.tag.outputs.release_tag }}
+        body_path: release.txt
+
+#    - name: Telegram notification
+#      if: steps.compile.outputs.status == 'success'
+#      run: |
+#        curl -k --data chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" --data "text=亲爱的✨主人✨：您使用 github Action 编译的 ${{ env.DEVICE }}_${{ env.Firmware_Author }}_immortalwrt 固件顺利编译完成了！💐" "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage"
+        
+    - name: Delete workflow runs
+      uses: Mattraks/delete-workflow-runs@v2
+      with:
+          retain_days: 5
+          keep_minimum_runs: 1
+
+    - name: Remove old Releases
+      uses: dev-drprasad/delete-older-releases@v0.3.3
+      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+      with:
+        keep_latest: 20
+        delete_tags: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
