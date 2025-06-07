@@ -21,6 +21,7 @@ sed -i 's/192.168.6.1/192.168.5.1/g' package/base-files/files/bin/config_generat
 sed -i "s/enabled '0'/enabled '1'/g" feeds/packages/utils/irqbalance/files/irqbalance.config
 
 ## Modify hostname
+#sed -i "s/hostname='.*'/hostname='MzWrt'/g" package/base-files/files/bin/config_generate
 #sed -i 's/ImmortalWrt/rax3000m_256m/g' package/base-files/files/bin/config_generate
 
 ## 修改wan口默认pppoe和设置pppoe拨号账户密码
@@ -52,6 +53,8 @@ rm -rf package/new && mkdir -p package/new
 ## 调整 LuCI 依赖，去除 luci-app-opkg，替换主题 bootstrap 为 argon
 # sed -i '/+luci-light/d;s/+luci-app-opkg/+luci-light/' ./feeds/luci/collections/luci/Makefile
 sed -i 's/luci-theme-bootstrap/luci-theme-argon/' ./feeds/luci/collections/luci-light/Makefile
+sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/Makefile
+sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci-nginx/Makefile
 ## 修改argon背景图片
 rm -rf feeds/luci/themes/luci-theme-argon/htdocs/luci-static/argon/img/bg1.jpg
 cp -f $GITHUB_WORKSPACE/bg1.jpg feeds/luci/themes/luci-theme-argon/htdocs/luci-static/argon/img/bg1.jpg
@@ -183,6 +186,16 @@ git clone https://github.com/zsh-users/zsh-completions ./.oh-my-zsh/custom/plugi
 cp $GITHUB_WORKSPACE/patches/.zshrc .
 popd
 
+## 修改插件名字（待测试）
+#grep -rl '"终端"' . | xargs -r sed -i 's?"终端"?"TTYD"?g'
+#grep -rl '"TTYD 终端"' . | xargs -r sed -i 's?"TTYD 终端"?"TTYD"?g'
+#grep -rl '"网络存储"' . | xargs -r sed -i 's?"网络存储"?"NAS"?g'
+#grep -rl '"实时流量监测"' . | xargs -r sed -i 's?"实时流量监测"?"流量"?g'
+#grep -rl '"KMS 服务器"' . | xargs -r sed -i 's?"KMS 服务器"?"KMS激活"?g'
+#grep -rl '"USB 打印服务器"' . | xargs -r sed -i 's?"USB 打印服务器"?"打印服务"?g'
+#grep -rl '"Web 管理"' . | xargs -r sed -i 's?"Web 管理"?"Web管理"?g'
+#grep -rl '"管理权"' . | xargs -r sed -i 's?"管理权"?"改密码"?g'
+#grep -rl '"带宽监控"' . | xargs -r sed -i 's?"带宽监控"?"监控"?g'
 
 ## end
 ls -1 package/new/
