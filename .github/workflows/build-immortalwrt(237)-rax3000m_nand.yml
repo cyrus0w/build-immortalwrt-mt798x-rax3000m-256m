@@ -172,7 +172,8 @@ jobs:
       run: |
         cd openwrt
         echo -e "$(nproc) thread compile"
-        make -j$(nproc) || make -j1 || make -j1 V=s
+        make -j$(nproc) || make -j1 V=s
+        #make -j$(nproc) || make -j1 || make -j1 V=s
         
         sed -n 's/.*lan) ipad=${ipaddr:-"\([0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\)"} ;;.*/\1/p' package/base-files/files/bin/config_generate | head -n 1 > LAN_IP
         [ -s LAN_IP ] && echo "LAN_IP=$(cat LAN_IP)" >> $GITHUB_ENV
