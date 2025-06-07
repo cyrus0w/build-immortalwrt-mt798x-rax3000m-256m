@@ -190,7 +190,7 @@ jobs:
         echo "status=success" >> $GITHUB_OUTPUT
     
     - name: Check space usage
-      if: (!cancelled())
+      if: !cancelled()
       run: df -hT
       
     - name: 整理输出文件
