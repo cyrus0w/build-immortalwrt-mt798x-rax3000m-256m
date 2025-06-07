@@ -190,12 +190,12 @@ jobs:
         echo "status=success" >> $GITHUB_OUTPUT
     
     - name: Check space usage
-      if: !cancelled()
+      if: "!cancelled()"
       run: df -hT
       
     - name: 整理输出文件
       id: organize
-      if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
+      if: "env.UPLOAD_FIRMWARE == 'true' && !cancelled()"
       run: | 
         #mapfile -t devices < <(grep '^CONFIG_TARGET_DEVICE.*=y' openwrt/.config | sed -r 's/.*DEVICE_(.*)=y/\1/')
         cd openwrt/bin/targets/*/*
@@ -205,14 +205,14 @@ jobs:
         
     - name : 打包上传固件到Actions Artifacts
       uses: actions/upload-artifact@main
-      if: steps.organize.outputs.status == 'success' && !cancelled()
+      if: "steps.organize.outputs.status == 'success' && !cancelled()"
       with:
         name: ${{ env.FILE_DATE }}-${{ env.Firmware_Author }}-${{ env.DEVICE_NAME }}-${{ env.BUILD_DOCKERMAN }}
         path: openwrt/bin
 
     - name: 生成固件Release标签
       id: tag
-      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+      if: "env.UPLOAD_RELEASE == 'true' && !cancelled()"
       run: |
         touch release.txt
         echo "- 使用源码：${{ env.REPO_URL }}" >> release.txt
@@ -237,7 +237,7 @@ jobs:
         
     - name: 发布固件至Release
       uses: softprops/action-gh-release@v2.1.0
-      if: steps.tag.outputs.status == 'success' && !cancelled()
+      if: "steps.tag.outputs.status == 'success' && !cancelled()"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
@@ -259,7 +259,7 @@ jobs:
 
     - name: Remove old Releases
       uses: dev-drprasad/delete-older-releases@v0.3.3
-      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+      if: "env.UPLOAD_RELEASE == 'true' && !cancelled()"
       with:
         keep_latest: 20
         delete_tags: true
