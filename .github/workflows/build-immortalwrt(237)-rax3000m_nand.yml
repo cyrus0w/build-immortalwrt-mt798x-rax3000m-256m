@@ -41,7 +41,7 @@ env:
   REPO_BRANCH: openwrt-21.02
   #FEEDS_CONF: immortalwrt/feeds.conf.default
   CONFIG_FILE: immortalwrt/rax3000m_250607.config
-  RELEASE_NOTICE: "ksmbd共享，openclsh(预置内核），zerotier，新socat，wechatpush3.5.6，luci-app-pushbot，硬盘休眠luci-app-hd-idle，定时重启autoreboot，上网时间控制accesscontrol，新MosDNS，zsh，vlmcsd（kms激活），diskman, usb-printer, 新AdGuard Home，文件传输，TTYD终端, qB下载4.4.5，usb移动网络拨号服务（luci-app-usbmodem），luci-app-quickstart（删了），luci-app-istorex（删了），luci-app-store（删了）"
+  RELEASE_NOTICE: "ksmbd共享，新openclsh(预置内核），zerotier，新socat，wechatpush3.5.6，luci-app-pushbot，硬盘休眠luci-app-hd-idle，定时重启autoreboot，上网时间控制accesscontrol，新MosDNS，zsh，vlmcsd（kms激活），diskman, usb-printer, 新AdGuard Home，文件传输，TTYD终端, qB下载4.4.5，usb移动网络拨号服务（luci-app-usbmodem），luci-app-quickstart（删了），luci-app-istorex（删了），luci-app-store（删了）"
 #  RELEASE_NOTICE: "237高功率，ksmbd共享，openclsh(预置内核），zerotier，socat，wechatpush，qB下载，硬盘休眠luci-app-hd-idle，定时重启autoreboot，上网时间控制accesscontrol，alist（先删除）。"
 #  RELEASE_NOTICE: "237高功率，ksmbd共享，openclsh(预置内核），zerotier，AdGuard Home, MosDNS, wechatpush, socat，上网时间控制，aria2。"
 #  RELEASE_NOTICE: "237高功率，ksmbd共享，openclsh(预置内核），zerotier，AdGuard Home, MosDNS, wechatpush, socat，定时重启，上网时间控制，aria2，alist。"
@@ -183,7 +183,7 @@ jobs:
                 echo "WIFI_INTERFACE=" >> $GITHUB_ENV
         fi
         if grep -q 'CONFIG_PACKAGE_luci-app-dockerman=y' .config; then
-                echo "BUILD_DOCKERMAN=docker" >> $GITHUB_ENV
+                echo "BUILD_DOCKERMAN=-docker" >> $GITHUB_ENV
         else
                 echo "BUILD_DOCKERMAN=" >> $GITHUB_ENV
         fi
@@ -210,7 +210,7 @@ jobs:
       uses: actions/upload-artifact@main
       if: "steps.organize.outputs.status == 'success' && !cancelled()"
       with:
-        name: ${{ env.FILE_DATE }}-${{ env.Firmware_Author }}-${{ env.DEVICE_NAME }}-${{ env.BUILD_DOCKERMAN }}
+        name: ${{ env.FILE_DATE }}-${{ env.Firmware_Author }}${{ env.DEVICE_NAME }}${{ env.BUILD_DOCKERMAN }}
         path: openwrt/bin
 
     - name: 生成固件Release标签
@@ -235,7 +235,7 @@ jobs:
           echo "- 未编译luci-app-dockerman" >> release.txt
         fi
         echo "- 集成组件${{ env.RELEASE_NOTICE }}"
-        echo "release_tag=${{ env.FILE_DATE }}-${{ env.Firmware_Author }}-${{ env.DEVICE_NAME }}-${{ env.BUILD_DOCKERMAN }}" >> $GITHUB_OUTPUT
+        echo "release_tag=${{ env.FILE_DATE }}-${{ env.Firmware_Author }}${{ env.DEVICE_NAME }}${{ env.BUILD_DOCKERMAN }}" >> $GITHUB_OUTPUT
         echo "status=success" >> $GITHUB_OUTPUT
         
     - name: 发布固件至Release
@@ -245,7 +245,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         files: ${{ env.FIRMWARE }}/*
-        name: ${{ env.FILE_DATE }}-${{ env.Firmware_Author }}-${{ env.DEVICE_NAME }}-${{ env.BUILD_DOCKERMAN }}
+        name: ${{ env.FILE_DATE }}-${{ env.Firmware_Author }}${{ env.DEVICE_NAME }}${{ env.BUILD_DOCKERMAN }}
         tag_name: ${{ steps.tag.outputs.release_tag }}
         body_path: release.txt
 
