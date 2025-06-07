@@ -41,7 +41,7 @@ env:
   REPO_BRANCH: openwrt-21.02
   #FEEDS_CONF: immortalwrt/feeds.conf.default
   CONFIG_FILE: immortalwrt/rax3000m_250607.config
-  RELEASE_NOTICE: "ksmbd共享，openclsh(预置内核），zerotier，新socat，新wechatpush，luci-app-pushbot，硬盘休眠luci-app-hd-idle，定时重启autoreboot，上网时间控制accesscontrol，新MosDNS，zsh，新AdGuard Home，"
+  RELEASE_NOTICE: "ksmbd共享，openclsh(预置内核），zerotier，新socat，新wechatpush，luci-app-pushbot，硬盘休眠luci-app-hd-idle，定时重启autoreboot，上网时间控制accesscontrol，新MosDNS，zsh，新AdGuard Home，文件传输，TTYD终端, qB下载4.4.5"
 #  RELEASE_NOTICE: "237高功率，ksmbd共享，openclsh(预置内核），zerotier，socat，wechatpush，qB下载，硬盘休眠luci-app-hd-idle，定时重启autoreboot，上网时间控制accesscontrol，alist（先删除）。"
 #  RELEASE_NOTICE: "237高功率，ksmbd共享，openclsh(预置内核），zerotier，AdGuard Home, MosDNS, wechatpush, socat，上网时间控制，aria2。"
 #  RELEASE_NOTICE: "237高功率，ksmbd共享，openclsh(预置内核），zerotier，AdGuard Home, MosDNS, wechatpush, socat，定时重启，上网时间控制，aria2，alist。"
@@ -203,7 +203,6 @@ jobs:
         cd openwrt/bin/targets/*/*
         rm -rf packages
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
-        echo "status=success" >> $GITHUB_OUTPUT
         
     - name : 打包上传固件到Actions Artifacts
       uses: actions/upload-artifact@main

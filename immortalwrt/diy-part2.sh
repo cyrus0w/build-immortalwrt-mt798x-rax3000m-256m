@@ -163,6 +163,9 @@ wget -qO- $GEOSITE_URL > package/new/luci-app-openclash/root/etc/openclash/GeoSi
 
 chmod +x package/new/luci-app-openclash/root/etc/openclash/core/clash*
 
+## Add luci-app-qbittorrent/4.4.5
+git clone -b 4.4.5 https://github.com/sbwml/luci-app-qbittorrent.git package/new/luci-app-qbittorrent
+
 ## Add zsh
 #bash $GITHUB_WORKSPACE/scripts/zsh.sh
 # Change default shell to zsh
